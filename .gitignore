@@ -1,0 +1,11 @@
+# Project files
+.idea/
+
+# Windows builds
+*.zip
+
+# macOS builds
+*.dmg
+
+# Linux builds
+*.AppImage
