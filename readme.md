@@ -1,5 +1,5 @@
 # spotify-qt builds
-Nigthly, and unstable, builds for testing.
+Unstable builds for testing.
 For stable builds, see the [release page](https://github.com/kraxarn/spotify-qt/releases/latest) of the main project repository.
 
 | System       | Requirements                          | Download                                | Note                                                                       |
