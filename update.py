@@ -24,27 +24,37 @@ build_repo_name = "kraxarn/spotify-qt-builds"
 source_repo_name = "kraxarn/spotify-qt"
 
 
-def get_latest_artifact_url(workflow_id: int) -> str:
+def get_latest_artifact_url(workflow_id: int) -> (str, int):
 	artifacts_url = requests \
 		.get(f"https://api.github.com/repos/{source_repo_name}/actions/workflows/{workflow_id}/runs", headers=headers) \
 		.json()["workflow_runs"][0]["artifacts_url"]
 
-	return requests.get(artifacts_url, headers=headers) \
-		.json()["artifacts"][0]["archive_download_url"]
+	artifact = requests.get(artifacts_url, headers=headers) \
+		.json()["artifacts"][0]
+
+	return artifact["archive_download_url"], artifact["size_in_bytes"]
 
 
-def download_file(source: str, target: str):
+def download_file(source: str, total_size: int, target: str):
+	downloaded = 0
+	last_percent = 0
 	with requests.get(source, headers=headers, stream=True) as response:
 		with open(target, "wb") as file:
 			for chunk in response.iter_content(chunk_size=8192):
 				file.write(chunk)
+				downloaded += len(chunk)
+				percent = int((downloaded / total_size) * 100)
+				if percent != last_percent and percent % 10 == 0:
+					print(f".", end="")
+					last_percent = percent
 
 
 for workflow in workflows:
-	url = get_latest_artifact_url(workflow)
+	url, size = get_latest_artifact_url(workflow)
 	filename = workflows[workflow]
-	print(f"[{workflow: <8}] {url} -> {filename}")
-	download_file(url, filename)
+	print(f"Downloading {filename}", end="")
+	download_file(url, size, filename)
+	print("")
 
 # print(f"Builds updated: {build_repo.updated_at}")
 # print(f"Source updated: {source_repo.updated_at}")
