@@ -24,20 +24,16 @@ build_repo_name = "kraxarn/spotify-qt-builds"
 source_repo_name = "kraxarn/spotify-qt"
 
 
-def get_latest_artifact_url(workflow_id: int) -> (str, int):
+def get_latest_artifact_url(workflow_id: int) -> str:
 	artifacts_url = requests \
 		.get(f"https://api.github.com/repos/{source_repo_name}/actions/workflows/{workflow_id}/runs", headers=headers) \
 		.json()["workflow_runs"][0]["artifacts_url"]
 
-	artifact = requests.get(artifacts_url, headers=headers) \
-		.json()["artifacts"][0]
-
-	return artifact["archive_download_url"], artifact["size_in_bytes"]
+	return requests.get(artifacts_url, headers=headers) \
+		.json()["artifacts"][0]["archive_download_url"]
 
 
-def download_file(source: str, total_size: int, target: str):
-	downloaded = 0
-	last_percent = 0
+def download_file(source: str, target: str):
 	with requests.get(source, headers=headers, stream=True) as response:
 		with open(target, "wb") as file:
 			for chunk in response.iter_content(chunk_size=8192):
@@ -50,7 +46,7 @@ def download_file(source: str, total_size: int, target: str):
 
 
 for workflow in workflows:
-	url, size = get_latest_artifact_url(workflow)
+	url = get_latest_artifact_url(workflow)
 	filename = workflows[workflow]
 	print(f"Downloading {filename}", end="")
 	download_file(url, size, filename)
