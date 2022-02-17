@@ -1,5 +1,6 @@
 import datetime
 import os
+import subprocess
 import sys
 import requests
 
@@ -38,19 +39,29 @@ def download_file(source: str, target: str):
 		with open(target, "wb") as file:
 			for chunk in response.iter_content(chunk_size=8192):
 				file.write(chunk)
-				downloaded += len(chunk)
-				percent = int((downloaded / total_size) * 100)
-				if percent != last_percent and percent % 10 == 0:
-					print(f".", end="")
-					last_percent = percent
+
+
+def run(args: list[str]):
+	subprocess.run(args)
+
+
+def add_file(name: str):
+	run(["git", "add", name])
+
+
+def source_hash() -> str:
+	return requests.get(f"https://api.github.com/repos/{source_repo_name}/commits")\
+		.json()[0]["sha"]
 
 
 for workflow in workflows:
 	url = get_latest_artifact_url(workflow)
 	filename = workflows[workflow]
-	print(f"Downloading {filename}", end="")
-	download_file(url, size, filename)
-	print("")
+	print(f"Downloading {filename}...")
+	download_file(url, filename)
+	add_file(filename)
+
+run(["git", "commit", "-m", source_hash()])
 
 # print(f"Builds updated: {build_repo.updated_at}")
 # print(f"Source updated: {source_repo.updated_at}")
