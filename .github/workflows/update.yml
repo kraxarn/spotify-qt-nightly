@@ -1,0 +1,23 @@
+name: Update builds
+
+on:
+  schedule:
+    cron: '0 0 * * *'
+
+jobs:
+  update-nightlies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure Git
+        run: |
+          git config user.name kraxarn
+          git config user.email kraxarn@users.noreply.github.com
+
+      - name: Download Artifacts
+        run: python update.py
+
+      - name: Upload Builds
+        run: git push
