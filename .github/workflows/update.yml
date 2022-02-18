@@ -25,6 +25,8 @@ jobs:
           git add "spotify-qt-linux-nightly.AppImage"
 
       - name: Upload Builds
+        env:
+          ACCESS_TOKEN: ${{secrets.ACCESS_TOKEN}}
         run: |
           source update.sh
           git commit -m "$(source_hash)"
