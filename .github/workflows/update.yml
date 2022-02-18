@@ -15,9 +15,16 @@ jobs:
         run: |
           git config user.name kraxarn
           git config user.email kraxarn@users.noreply.github.com
+          source update.sh
 
-      - name: Download Artifacts
-        run: python update.py
+      - name: Download Linux build
+        run: |
+          download_artifact "7734249" "linux.zip"
+          unzip "linux.zip"
+          mv "$(find . -name "spotify-qt-*.AppImage")" "./spotify-qt-linux-nightly.AppImage"
+          git add "spotify-qt-linux-nightly.AppImage"
 
       - name: Upload Builds
-        run: git push
+        run: |
+          git commit -m "$(source_hash)"
+          git push
