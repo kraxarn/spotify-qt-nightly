@@ -26,5 +26,6 @@ jobs:
 
       - name: Upload Builds
         run: |
+          source update.sh
           git commit -m "$(source_hash)"
           git push
