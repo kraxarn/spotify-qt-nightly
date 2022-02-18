@@ -3,7 +3,7 @@ name: Update builds
 on: workflow_dispatch
 
 jobs:
-  update-nightlies:
+  update-builds:
     runs-on: ubuntu-latest
 
     steps:
