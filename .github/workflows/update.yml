@@ -17,7 +17,7 @@ jobs:
       - name: Download Linux build
         run: |
           source update.sh
-          download_artifact "7734249" "linux.zip"
+          python download.py "7734249" "linux.zip"
           unzip "linux.zip"
           find . -name "spotify-qt-*.AppImage" -exec mv {} ./spotify-qt-linux-nightly.AppImage \;
           git add "spotify-qt-linux-nightly.AppImage"
