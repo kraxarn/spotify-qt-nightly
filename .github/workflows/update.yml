@@ -19,7 +19,7 @@ jobs:
           source update.sh
           download_artifact "7734249" "linux.zip"
           unzip "linux.zip"
-          mv "$(find . -name "spotify-qt-*.AppImage")" "./spotify-qt-linux-nightly.AppImage"
+          find . -name "spotify-qt-*.AppImage" -exec mv {} ./spotify-qt-linux-nightly.AppImage \;
           git add "spotify-qt-linux-nightly.AppImage"
 
       - name: Upload Builds
