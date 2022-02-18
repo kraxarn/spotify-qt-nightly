@@ -13,10 +13,10 @@ jobs:
         run: |
           git config user.name kraxarn
           git config user.email kraxarn@users.noreply.github.com
-          source update.sh
 
       - name: Download Linux build
         run: |
+          source update.sh
           download_artifact "7734249" "linux.zip"
           unzip "linux.zip"
           mv "$(find . -name "spotify-qt-*.AppImage")" "./spotify-qt-linux-nightly.AppImage"
