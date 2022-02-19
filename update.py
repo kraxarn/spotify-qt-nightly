@@ -96,12 +96,14 @@ print(f"Updating builds to {latest_source}")
 print("Downloading Linux build")
 download_artifact(7734249, "linux.zip")
 print("Extracting file")
-file_linux = extract("linux.zip")
+file_linux = f"spotify-qt-{latest_source}.AppImage"
+os.rename(extract("linux.zip"), file_linux)
 print(f"Linux build saved to: {file_linux}")
 
 # macOS
 print("Downloading macOS build")
 download_artifact(18407206, "macos.zip")
 print("Extracting file")
-file_macos = extract("macos.zip")
+file_macos = f"spotify-qt-{latest_source}.dmg"
+os.rename(extract("macos.zip"), file_macos)
 print(f"macOS build saved to: {file_macos}")
