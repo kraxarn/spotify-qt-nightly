@@ -18,6 +18,7 @@ workflows = {
 access_token = os.environ["ACCESS_TOKEN"]
 
 headers = {
+	"Accept": "application/vnd.github.v3+json",
 	"Authorization": f"token {access_token}",
 }
 
