@@ -98,3 +98,10 @@ download_artifact(7734249, "linux.zip")
 print("Extracting file")
 file_linux = extract("linux.zip")
 print(f"Linux build saved to: {file_linux}")
+
+# macOS
+print("Downloading macOS build")
+download_artifact(18407206, "macos.zip")
+print("Extracting file")
+file_macos = extract("macos.zip")
+print(f"macOS build saved to: {file_macos}")
