@@ -1,7 +1,6 @@
-import datetime
 import os
-import subprocess
 import sys
+import zipfile
 
 import requests
 
@@ -51,12 +50,17 @@ def download_file(source: str, target: str):
 				file.write(chunk)
 
 
-def run(args: list[str]):
-	subprocess.run(args)
+def download_artifact(workflow_id: int, destination: str):
+	artifact_url = get_latest_artifact_url(workflow_id)
+	download_file(artifact_url, destination)
 
 
-def add_file(name: str):
-	run(["git", "add", name])
+def extract(file: str) -> str:
+	extracted_file: str
+	with zipfile.ZipFile(file, "r") as zip_file:
+		extracted_file = zip_file.namelist()[0]
+		zip_file.extractall()
+	return extracted_file
 
 
 def source_hash() -> str:
@@ -86,24 +90,11 @@ if latest_source == latest_build and "--force" not in sys.argv:
 	print(f"Builds are up-to-date ({latest_build})")
 	exit()
 
-print(f"Updating builds to {latest_source}...")
+print(f"Updating builds to {latest_source}")
 
-# for workflow in workflows:
-# 	url = get_latest_artifact_url(workflow)
-# 	filename = workflows[workflow]
-# 	print(f"Downloading {filename}...")
-# 	download_file(url, filename)
-# 	add_file(filename)
-#
-# run(["git", "commit", "-m", source_hash()])
-
-# print(f"Builds updated: {build_repo.updated_at}")
-# print(f"Source updated: {source_repo.updated_at}")
-
-# if build_repo.updated_at > source_repo.updated_at:
-# 	print("Already up-to-date")
-# 	sys.exit()
-
-# build_updated_days = (datetime.datetime.now() - build_repo.updated_at).days
-# build_updated_days_suffix = "day" if build_updated_days == 1 else "days"
-# print(f"Builds were updated {build_updated_days} {build_updated_days_suffix} ago")
+# Linux
+print("Downloading Linux build")
+download_artifact(7734249, "linux.zip")
+print("Extracting file")
+file_linux = extract("linux.zip")
+print(f"Linux build saved to: {file_linux}")
