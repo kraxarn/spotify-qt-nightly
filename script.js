@@ -48,3 +48,10 @@ getDownloadUrl(currentSystem.ext).then(url => {
 	}
 	document.getElementById("download").href = url
 })
+if (currentSystem.name === "Windows") {
+	const warning = document.getElementById("warning")
+	const href = currentSystem.id === "win64"
+		? "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+		: "https://aka.ms/vs/17/release/vc_redist.x86.exe"
+	warning.innerHTML = `<b>Note:</b> Make sure you have the <a href="${href}">C++ Runtime</a> installed.`
+}

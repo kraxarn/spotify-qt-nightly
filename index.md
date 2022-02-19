@@ -11,4 +11,6 @@ below!
 [download page](https://github.com/kraxarn/spotify-qt-nightly/releases/latest)
 for all downloads.
 
+<span id="warning"></span>
+
 <script src="script.js"></script>
