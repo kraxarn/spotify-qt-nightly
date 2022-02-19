@@ -67,7 +67,7 @@ def extract(file: str) -> str:
 	return extracted_file
 
 
-def source_hash() -> str:
+def get_source_hash() -> str:
 	return requests.get(f"https://api.github.com/repos/{source_repo_name}/commits", headers=headers) \
 		.json()[0]["sha"]
 
@@ -79,7 +79,7 @@ def get_latest_tag(repo: str) -> str:
 
 def get_latest_source_version() -> str:
 	tag = get_latest_tag(source_repo_name)
-	short_hash = source_hash()[0:7]
+	short_hash = get_source_hash()[0:7]
 	return f"{tag}-{short_hash}"
 
 
