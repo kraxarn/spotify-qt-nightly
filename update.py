@@ -55,6 +55,30 @@ def source_hash() -> str:
 		.json()[0]["sha"]
 
 
+def get_latest_tag(repo: str) -> str:
+	return requests.get(f"https://api.github.com/repos/{repo}/tags", headers=headers) \
+		.json()[0]["name"]
+
+
+def get_latest_source_version() -> str:
+	tag = get_latest_tag(source_repo_name)
+	short_hash = source_hash()[0:7]
+	return f"{tag}-{short_hash}"
+
+
+def get_latest_build_version() -> str:
+	return get_latest_tag(build_repo_name)
+
+
+latest_source = get_latest_source_version()
+latest_build = get_latest_build_version()
+
+if latest_source == latest_build and "--force" not in sys.argv:
+	print(f"Builds are up-to-date ({latest_build})")
+	exit()
+
+print(f"Updating builds to {latest_source}...")
+
 # for workflow in workflows:
 # 	url = get_latest_artifact_url(workflow)
 # 	filename = workflows[workflow]
