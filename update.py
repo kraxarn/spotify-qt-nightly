@@ -28,8 +28,17 @@ source_repo_name = "kraxarn/spotify-qt"
 
 def get_latest_artifact_url(workflow_id: int) -> str:
 	runs_url = f"https://api.github.com/repos/{source_repo_name}/actions/workflows/{workflow_id}/runs"
-	artifacts_url = requests.get(runs_url, headers=headers) \
-		.json()["workflow_runs"][0]["artifacts_url"]
+	runs = requests.get(runs_url, headers=headers) \
+		.json()["workflow_runs"]
+
+	artifacts_url = ""
+	for run in runs:
+		if run["event"] == "push" and run["conclusion"] == "success":
+			artifacts_url = run["artifacts_url"]
+			break
+
+	if len(artifacts_url) == 0:
+		raise ValueError("No artifact found")
 
 	return requests.get(artifacts_url, headers=headers) \
 		.json()["artifacts"][0]["archive_download_url"]
