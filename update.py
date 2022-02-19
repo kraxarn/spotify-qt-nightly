@@ -9,13 +9,6 @@ import requests
 if "ACCESS_TOKEN" not in os.environ:
 	sys.exit("Error: Access token not specified")
 
-workflows = {
-	7734249: "spotify-qt-linux-nightly.AppImage",
-	18195390: "spotify-qt-win64-nightly.zip",
-	18401182: "spotify-qt-win32-nightly.zip",
-	18407206: "spotify-qt-macos-nightly.dmg",
-}
-
 access_token = os.environ["ACCESS_TOKEN"]
 
 headers = {
