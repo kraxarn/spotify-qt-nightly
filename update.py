@@ -53,7 +53,7 @@ def download_file(source: str, target: str):
 
 
 def download_artifact(workflow_id: int, destination: str):
-	if "--no-download" in sys.argv:
+	if "--no-download" in sys.argv and os.path.isfile(destination):
 		return
 	artifact_url = get_latest_artifact_url(workflow_id)
 	download_file(artifact_url, destination)
