@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import typing
@@ -80,6 +81,37 @@ def get_latest_build_version() -> str:
 	return get_latest_tag(build_repo_name)
 
 
+def get_changes(sha: str) -> typing.Generator[str, str, None]:
+	commits_url = f"https://api.github.com/repos/{source_repo_name}/commits"
+	commits = requests.get(commits_url, headers=headers).json()
+	for commit in commits:
+		if commit["sha"] == sha:
+			break
+		yield str(commit["commit"]["message"])
+
+
+def create_release(version: str, changes: typing.Iterable[str]) -> int:
+	data = json.dumps({
+		"tag_name": version,
+		"name": version,
+		"body": "\n".join(changes),
+		"prerelease": True,
+	})
+	releases_url = f"https://api.github.com/repos/{build_repo_name}/releases"
+	return requests.post(releases_url, data=data, headers=headers).json()["id"]
+
+
+def add_release_asset(release_id: int, filename: str):
+	assets_url = (
+		f"https://uploads.github.com/repos/{build_repo_name}/releases/{release_id}/assets"
+		f"?name={filename}"
+	)
+	upload_headers = headers
+	upload_headers["Content-Type"] = "application/octet-stream"
+	with open(filename, "rb") as file:
+		requests.post(assets_url, headers=upload_headers, data=file)
+
+
 latest_source = get_latest_source_version()
 latest_build = get_latest_build_version()
 
@@ -112,3 +144,14 @@ file_win32 = f"spotify-qt-{latest_source}-win32.zip"
 download_artifact(18195390, file_win64)
 download_artifact(18401182, file_win32)
 print(f"Windows builds saved to: {file_win64}, {file_win32}")
+
+# Create release
+print("Creating release")
+release = create_release(latest_source, get_changes(get_source_hash()))
+print("Uploading Linux build")
+add_release_asset(release, file_linux)
+print("Uploading macOS build")
+add_release_asset(release, file_macos)
+print("Uploading Windows builds")
+add_release_asset(release, file_win32)
+add_release_asset(release, file_win64)
