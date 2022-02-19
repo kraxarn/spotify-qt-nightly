@@ -1,12 +1,14 @@
-If you just want to download spotify-qt, check the 
+If you just want to download spotify-qt, check the
 [main download page](https://github.com/kraxarn/spotify-qt/releases/latest)
-instead. If you're here for the unstable builds to try out new features, check the download 
-links below!
+instead. If you're here for the unstable builds to try out new features, check the download links
+below!
 
-You appear to be running <span id="current-system"></span>
+<a id="download">
+	Download for <span id="system-name"></span>
+</a>
 
-<div id="download-linux" style="display: none">
-	Download for Linux
-</div>
+...or check out the
+[download page](https://github.com/kraxarn/spotify-qt-nightly/releases/latest)
+for all downloads.
 
 <script src="script.js"></script>
