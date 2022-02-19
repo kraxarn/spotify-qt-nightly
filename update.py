@@ -22,7 +22,7 @@ headers = {
 	"Authorization": f"token {access_token}",
 }
 
-build_repo_name = "kraxarn/spotify-qt-builds"
+build_repo_name = "kraxarn/spotify-qt-nightly"
 source_repo_name = "kraxarn/spotify-qt"
 
 
