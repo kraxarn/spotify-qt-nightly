@@ -107,3 +107,11 @@ print("Extracting file")
 file_macos = f"spotify-qt-{latest_source}.dmg"
 os.rename(extract("macos.zip"), file_macos)
 print(f"macOS build saved to: {file_macos}")
+
+# Windows
+print("Downloading Windows builds")
+file_win64 = f"spotify-qt-{latest_source}-win64.zip"
+file_win32 = f"spotify-qt-{latest_source}-win32.zip"
+download_artifact(18195390, file_win64)
+download_artifact(18401182, file_win32)
+print(f"Windows builds saved to: {file_win64}, {file_win32}")
