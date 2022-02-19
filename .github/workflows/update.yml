@@ -11,45 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Configure Git
-        run: |
-          git config user.name kraxarn
-          git config user.email kraxarn@users.noreply.github.com
-
-      - name: Download Linux Build
+      - name: Update Builds
         env:
           ACCESS_TOKEN: ${{secrets.ACCESS_TOKEN}}
         run: |
-          source update.sh
-          download_artifact "7734249" "linux.zip"
-          unzip "linux.zip"
-          find . -name "spotify-qt-*.AppImage" -exec mv {} ./spotify-qt-linux-nightly.AppImage \;
-          git add "spotify-qt-linux-nightly.AppImage"
-
-      - name: Download macOS Build
-        env:
-          ACCESS_TOKEN: ${{secrets.ACCESS_TOKEN}}
-        run: |
-          source update.sh
-          download_artifact "18407206" "macos.zip"
-          unzip "macos.zip"
-          mv ./spotify-qt.dmg ./spotify-qt-macos-nightly.dmg
-          git add "spotify-qt-macos-nightly.dmg"
-
-      - name: Download Windows Builds
-        env:
-          ACCESS_TOKEN: ${{secrets.ACCESS_TOKEN}}
-        run: |
-          source update.sh
-          download_artifact "18195390" "spotify-qt-win64-nightly.zip"
-          download_artifact "18401182" "spotify-qt-win32-nightly.zip"
-          git add "spotify-qt-win64-nightly.zip"
-          git add "spotify-qt-win32-nightly.zip"
-
-      - name: Upload Builds
-        env:
-          ACCESS_TOKEN: ${{secrets.ACCESS_TOKEN}}
-        run: |
-          source update.sh
-          git commit -m "$(source_hash)"
-          git push
+          python update.py
