@@ -1,10 +1,13 @@
-# spotify-qt builds
-Unstable builds for testing.
-For stable builds, see the [release page](https://github.com/kraxarn/spotify-qt/releases/latest) of the main project repository.
+# spotify-qt nightly builds
 
-| System       | Requirements                          | Download                                                                                                                       | Note                                                                       |
-|--------------|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| Windows, x64 | Windows 10 (1809) or later            | [spotify-qt-win64-nightly.zip](https://github.com/kraxarn/spotify-qt-builds/raw/master/spotify-qt-win64-nightly.zip)           | Requires [C++ Runtime x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) |
-| Windows, x86 | Windows 7 or later                    | [spotify-qt-win32-nightly.zip](https://github.com/kraxarn/spotify-qt-builds/raw/master/spotify-qt-win32-nightly.zip)           | Requires [C++ Runtime x86](https://aka.ms/vs/17/release/vc_redist.x86.exe) |
-| macOS, x64   | macOS 10.14 or later                  | [spotify-qt-macos-nightly.dmg](https://github.com/kraxarn/spotify-qt-builds/raw/master/spotify-qt-macos-nightly.dmg)           | For native M1 support, compile it yourself                                 |
-| Linux, x64   | Ubuntu 18.04, or equivalent, or later | [spotify-qt-linux-nightly.AppImage](https://github.com/kraxarn/spotify-qt-builds/raw/master/spotify-qt-linux-nightly.AppImage) | Also available from snap                                                   |
+Unstable builds for testing. For stable builds, see the
+[release page](https://github.com/kraxarn/spotify-qt/releases/latest)
+of the main project repository.
+
+Otherwise, check the [nightly download page](https://kraxarn.github.io/spotify-qt-nightly) for 
+downloads, or the [release page](https://github.com/kraxarn/spotify-qt-nightly/releases/latest).
+
+**Windows users:** Make sure you have either the 
+[C++ Runtime x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) or the
+[C++ Runtime x86](https://aka.ms/vs/17/release/vc_redist.x86.exe), depending on if you choose to 
+download the win64, or win32, build respectively. 
