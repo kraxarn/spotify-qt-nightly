@@ -1,5 +1,6 @@
 import os
 import sys
+import typing
 import zipfile
 
 import requests
@@ -22,8 +23,8 @@ headers = {
 	"Authorization": f"token {access_token}",
 }
 
-build_repo_name = "kraxarn/spotify-qt-nightly"
-source_repo_name = "kraxarn/spotify-qt"
+build_repo_name: typing.Final[str] = "kraxarn/spotify-qt-nightly"
+source_repo_name: typing.Final[str] = "kraxarn/spotify-qt"
 
 
 def get_latest_artifact_url(workflow_id: int) -> str:
