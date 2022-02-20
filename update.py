@@ -85,7 +85,7 @@ def get_changes(sha: str) -> typing.Generator[str, str, None]:
 	commits_url = f"https://api.github.com/repos/{source_repo_name}/commits"
 	commits = requests.get(commits_url, headers=headers).json()
 	for commit in commits:
-		if commit["sha"] == sha:
+		if str(commit["sha"]).startswith(sha):
 			break
 		message = commit["commit"]["message"]
 		yield f"* {message}"
@@ -148,7 +148,8 @@ print(f"Windows builds saved to: {file_win64}, {file_win32}")
 
 # Create release
 print("Creating release")
-release = create_release(latest_source, get_changes(get_source_hash()))
+build_short_hash = latest_build[latest_build.index("-") + 1:]
+release = create_release(latest_source, get_changes(build_short_hash))
 print("Uploading Linux build")
 add_release_asset(release, file_linux)
 print("Uploading macOS build")
