@@ -87,7 +87,8 @@ def get_changes(sha: str) -> typing.Generator[str, str, None]:
 	for commit in commits:
 		if commit["sha"] == sha:
 			break
-		yield str(commit["commit"]["message"])
+		message = commit["commit"]["message"]
+		yield f"* {message}"
 
 
 def create_release(version: str, changes: typing.Iterable[str]) -> int:
