@@ -162,13 +162,17 @@ file_macos = f"spotify-qt-{source_version}.dmg"
 os.rename(extract("macos.zip"), file_macos)
 print(f"macOS build saved to: {file_macos}")
 
-# Windows
-print("Downloading Windows builds")
-file_win64 = f"spotify-qt-{source_version}-win64.zip"
+# Windows x86
+print("Downloading Windows x86 build")
 file_win32 = f"spotify-qt-{source_version}-win32.zip"
-download_artifact(18195390, file_win64)
 download_artifact(18401182, file_win32)
-print(f"Windows builds saved to: {file_win64}, {file_win32}")
+print(f"Windows x86 build saved to: {file_win32}")
+
+# Windows x64
+print("Downloading Windows x64 build")
+file_win64 = f"spotify-qt-{source_version}-win64.zip"
+download_artifact(18195390, file_win64)
+print(f"Windows x64 build saved to: {file_win64}")
 
 # Update release
 print("Updating release")
