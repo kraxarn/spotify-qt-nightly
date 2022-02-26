@@ -24,8 +24,7 @@ source_repo_name: typing.Final[str] = "kraxarn/spotify-qt"
 
 def get_latest_artifact_url(workflow_id: int) -> str:
 	runs_url = f"https://api.github.com/repos/{source_repo_name}/actions/workflows/{workflow_id}/runs"
-	runs = requests.get(runs_url, headers=headers) \
-		.json()["workflow_runs"]
+	runs = requests.get(runs_url, headers=headers).json()["workflow_runs"]
 
 	artifacts_url = ""
 	for run in runs:
@@ -36,8 +35,8 @@ def get_latest_artifact_url(workflow_id: int) -> str:
 	if len(artifacts_url) == 0:
 		raise ValueError("No artifact found")
 
-	return requests.get(artifacts_url, headers=headers) \
-		.json()["artifacts"][0]["archive_download_url"]
+	artifacts = requests.get(artifacts_url, headers=headers).json()
+	return artifacts["artifacts"][0]["archive_download_url"]
 
 
 def download_file(source: str, target: str):
@@ -67,27 +66,27 @@ def get_latest_source_hash() -> str:
 	return requests.get(commits_url, headers=headers).json()[0]["sha"]
 
 
-def get_latest_release(repo: str) -> typing.Any:
-	latest_release_url = f"https://api.github.com/repos/{repo}/releases/latest"
+def get_latest_build_release() -> typing.Any:
+	latest_release_url = f"https://api.github.com/repos/{build_repo_name}/releases/latest"
 	return requests.get(latest_release_url, headers=headers).json()
 
 
 def get_latest_build_hash() -> str:
-	release = get_latest_release(build_repo_name)
+	release = get_latest_build_release()
 	return str(release["body"]).partition("\n")[0].rstrip()
 
 
 def get_latest_build_release_id() -> int:
-	return get_latest_release(build_repo_name)["id"]
+	return get_latest_build_release()["id"]
 
 
-def get_latest_tag(repo: str) -> str:
-	return requests.get(f"https://api.github.com/repos/{repo}/tags", headers=headers) \
-		.json()[0]["name"]
+def get_latest_source_tag() -> str:
+	tags_url = f"https://api.github.com/repos/{source_repo_name}/tags"
+	return requests.get(tags_url, headers=headers).json()[0]["name"]
 
 
 def get_latest_source_version() -> str:
-	tag = get_latest_tag(source_repo_name)
+	tag = get_latest_source_tag()
 	short_hash = get_latest_source_hash()[0:7]
 	return f"{tag}-{short_hash}"
 
@@ -132,8 +131,7 @@ def delete_release_asset(asset_id: int):
 
 
 def get_all_assets() -> typing.Generator[int, int, None]:
-	release = get_latest_release(build_repo_name)
-	for asset in release["assets"]:
+	for asset in get_latest_build_release()["assets"]:
 		yield asset["id"]
 
 
