@@ -135,6 +135,12 @@ def get_all_assets() -> typing.Generator[int, int, None]:
 		yield asset["id"]
 
 
+def download_artifact_and_extract(workflow_id: int, filename: str):
+	download_target = f"{workflow_id}.zip"
+	download_artifact(workflow_id, download_target)
+	os.rename(extract(download_target), filename)
+
+
 source_hash = get_latest_source_hash()
 source_version = get_latest_source_version()
 
@@ -148,18 +154,14 @@ print(f"Updating builds to {source_version}")
 
 # Linux
 print("Downloading Linux build")
-download_artifact(7734249, "linux.zip")
-print("Extracting file")
 file_linux = f"spotify-qt-{source_version}.AppImage"
-os.rename(extract("linux.zip"), file_linux)
+download_artifact_and_extract(7734249, file_linux)
 print(f"Linux build saved to: {file_linux}")
 
 # macOS
 print("Downloading macOS build")
-download_artifact(18407206, "macos.zip")
-print("Extracting file")
 file_macos = f"spotify-qt-{source_version}.dmg"
-os.rename(extract("macos.zip"), file_macos)
+download_artifact_and_extract(18407206, file_macos)
 print(f"macOS build saved to: {file_macos}")
 
 # Windows x86
