@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import sys
@@ -61,9 +62,23 @@ def extract(file: str) -> str:
 	return extracted_file
 
 
-def get_source_hash() -> str:
-	return requests.get(f"https://api.github.com/repos/{source_repo_name}/commits", headers=headers) \
-		.json()[0]["sha"]
+def get_latest_source_hash() -> str:
+	commits_url = f"https://api.github.com/repos/{source_repo_name}/commits"
+	return requests.get(commits_url, headers=headers).json()[0]["sha"]
+
+
+def get_latest_release(repo: str) -> typing.Any:
+	latest_release_url = f"https://api.github.com/repos/{repo}/releases/latest"
+	return requests.get(latest_release_url, headers=headers).json()
+
+
+def get_latest_build_hash() -> str:
+	release = get_latest_release(build_repo_name)
+	return str(release["body"]).partition("\n")[0].rstrip()
+
+
+def get_latest_build_release_id() -> int:
+	return get_latest_release(build_repo_name)["id"]
 
 
 def get_latest_tag(repo: str) -> str:
@@ -73,12 +88,8 @@ def get_latest_tag(repo: str) -> str:
 
 def get_latest_source_version() -> str:
 	tag = get_latest_tag(source_repo_name)
-	short_hash = get_source_hash()[0:7]
+	short_hash = get_latest_source_hash()[0:7]
 	return f"{tag}-{short_hash}"
-
-
-def get_latest_build_version() -> str:
-	return get_latest_tag(build_repo_name)
 
 
 def get_changes(sha: str) -> typing.Generator[str, str, None]:
@@ -91,15 +102,17 @@ def get_changes(sha: str) -> typing.Generator[str, str, None]:
 		yield f"* {message}"
 
 
-def create_release(version: str, changes: typing.Iterable[str]) -> int:
+def update_release(release_id: int, commit_hash: str, changes: typing.Iterable[str]):
+	today = datetime.date.today()
 	data = json.dumps({
-		"tag_name": version,
-		"name": version,
-		"body": "\n".join(changes),
-		"prerelease": True,
+		"name": today.strftime("%b %d, %Y"),
+		"body": "\n".join([
+			commit_hash,
+			*changes,
+		])
 	})
-	releases_url = f"https://api.github.com/repos/{build_repo_name}/releases"
-	return requests.post(releases_url, data=data, headers=headers).json()["id"]
+	release_url = f"https://api.github.com/repos/{build_repo_name}/releases/{release_id}"
+	requests.patch(release_url, data=data, headers=headers)
 
 
 def add_release_asset(release_id: int, filename: str):
@@ -113,20 +126,33 @@ def add_release_asset(release_id: int, filename: str):
 		requests.post(assets_url, headers=upload_headers, data=file)
 
 
-latest_source = get_latest_source_version()
-latest_build = get_latest_build_version()
+def delete_release_asset(asset_id: int):
+	asset_url = f"https://api.github.com/repos/{build_repo_name}/releases/assets/{asset_id}"
+	requests.delete(asset_url, headers=headers)
 
-if latest_source == latest_build and "--force" not in sys.argv:
-	print(f"Builds are up-to-date ({latest_build})")
+
+def get_all_assets() -> typing.Generator[int, int, None]:
+	release = get_latest_release(build_repo_name)
+	for asset in release["assets"]:
+		yield asset["id"]
+
+
+source_hash = get_latest_source_hash()
+source_version = get_latest_source_version()
+
+build_hash = get_latest_build_hash()
+
+if source_hash == build_hash and "--force" not in sys.argv:
+	print(f"Builds are up-to-date ({source_hash})")
 	exit()
 
-print(f"Updating builds to {latest_source}")
+print(f"Updating builds to {source_version}")
 
 # Linux
 print("Downloading Linux build")
 download_artifact(7734249, "linux.zip")
 print("Extracting file")
-file_linux = f"spotify-qt-{latest_source}.AppImage"
+file_linux = f"spotify-qt-{source_version}.AppImage"
 os.rename(extract("linux.zip"), file_linux)
 print(f"Linux build saved to: {file_linux}")
 
@@ -134,26 +160,32 @@ print(f"Linux build saved to: {file_linux}")
 print("Downloading macOS build")
 download_artifact(18407206, "macos.zip")
 print("Extracting file")
-file_macos = f"spotify-qt-{latest_source}.dmg"
+file_macos = f"spotify-qt-{source_version}.dmg"
 os.rename(extract("macos.zip"), file_macos)
 print(f"macOS build saved to: {file_macos}")
 
 # Windows
 print("Downloading Windows builds")
-file_win64 = f"spotify-qt-{latest_source}-win64.zip"
-file_win32 = f"spotify-qt-{latest_source}-win32.zip"
+file_win64 = f"spotify-qt-{source_version}-win64.zip"
+file_win32 = f"spotify-qt-{source_version}-win32.zip"
 download_artifact(18195390, file_win64)
 download_artifact(18401182, file_win32)
 print(f"Windows builds saved to: {file_win64}, {file_win32}")
 
-# Create release
-print("Creating release")
-build_short_hash = latest_build[latest_build.index("-") + 1:]
-release = create_release(latest_source, get_changes(build_short_hash))
+# Update release
+print("Updating release")
+latest_release_id = get_latest_build_release_id()
+update_release(latest_release_id, source_hash, get_changes(build_hash))
+
+# Delete all old assets
+for release_asset_id in get_all_assets():
+	delete_release_asset(release_asset_id)
+
+# Update builds
 print("Uploading Linux build")
-add_release_asset(release, file_linux)
+add_release_asset(latest_release_id, file_linux)
 print("Uploading macOS build")
-add_release_asset(release, file_macos)
+add_release_asset(latest_release_id, file_macos)
 print("Uploading Windows builds")
-add_release_asset(release, file_win32)
-add_release_asset(release, file_win64)
+add_release_asset(latest_release_id, file_win32)
+add_release_asset(latest_release_id, file_win64)
