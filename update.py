@@ -85,10 +85,9 @@ def get_latest_source_tag() -> str:
 	return requests.get(tags_url, headers=headers).json()[0]["name"]
 
 
-def get_latest_source_version() -> str:
-	tag = get_latest_source_tag()
-	short_hash = get_latest_source_hash()[0:7]
-	return f"{tag}-{short_hash}"
+def get_target_version() -> str:
+	today = datetime.datetime.today()
+	return today.strftime("%y%m%d")
 
 
 def get_changes(sha: str) -> typing.Generator[str, str, None]:
@@ -141,8 +140,10 @@ def download_artifact_and_extract(workflow_id: int, filename: str):
 	os.rename(extract(download_target), filename)
 
 
+source_tag = get_latest_source_tag()
 source_hash = get_latest_source_hash()
-source_version = get_latest_source_version()
+source_version = f"{source_tag}-{source_hash[0:7]}"
+target_version = f"{source_tag}-{get_target_version()}"
 
 build_hash = get_latest_build_hash()
 
@@ -154,25 +155,25 @@ print(f"Updating builds to {source_version}")
 
 # Linux
 print("Downloading Linux build")
-file_linux = f"spotify-qt-{source_version}.AppImage"
+file_linux = f"spotify-qt-{target_version}.AppImage"
 download_artifact_and_extract(7734249, file_linux)
 print(f"Linux build saved to: {file_linux}")
 
 # macOS
 print("Downloading macOS build")
-file_macos = f"spotify-qt-{source_version}.dmg"
+file_macos = f"spotify-qt-{target_version}.dmg"
 download_artifact_and_extract(18407206, file_macos)
 print(f"macOS build saved to: {file_macos}")
 
 # Windows x86
 print("Downloading Windows x86 build")
-file_win32 = f"spotify-qt-{source_version}-win32.zip"
+file_win32 = f"spotify-qt-{target_version}-win32.zip"
 download_artifact(18401182, file_win32)
 print(f"Windows x86 build saved to: {file_win32}")
 
 # Windows x64
 print("Downloading Windows x64 build")
-file_win64 = f"spotify-qt-{source_version}-win64.zip"
+file_win64 = f"spotify-qt-{target_version}-win64.zip"
 download_artifact(18195390, file_win64)
 print(f"Windows x64 build saved to: {file_win64}")
 
