@@ -153,6 +153,8 @@ if source_hash == build_hash and "--force" not in sys.argv:
 
 print(f"Updating builds to {source_version}")
 
+# TODO: Workflow IDs can change when new are added, fetch by name instead
+
 # Linux
 print("Downloading Linux build")
 file_linux = f"spotify-qt-{target_version}.AppImage"
@@ -168,13 +170,13 @@ print(f"macOS build saved to: {file_macos}")
 # Windows x86
 print("Downloading Windows x86 build")
 file_win32 = f"spotify-qt-{target_version}-win32.zip"
-download_artifact(18401182, file_win32)
+download_artifact(59405711, file_win32)
 print(f"Windows x86 build saved to: {file_win32}")
 
 # Windows x64
 print("Downloading Windows x64 build")
 file_win64 = f"spotify-qt-{target_version}-win64.zip"
-download_artifact(18195390, file_win64)
+download_artifact(59405713, file_win64)
 print(f"Windows x64 build saved to: {file_win64}")
 
 # Update release
