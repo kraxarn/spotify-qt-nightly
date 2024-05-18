@@ -137,6 +137,15 @@ def download_artifact_and_extract(workflow_id: int, filename: str):
 	os.rename(extract(download_target), filename)
 
 
+def find_workflow_id(name: str) -> int:
+	workflows_url = f"https://api.github.com/repos/{source_repo_name}/actions/workflows"
+	workflows = requests.get(workflows_url, headers=headers).json()["workflows"]
+	for workflow in workflows:
+		if workflow["name"] == name:
+			return workflow["id"]
+	raise ValueError(f"Workflow not found: {name}")
+
+
 source_tag = get_latest_source_tag()
 source_hash = get_latest_source_hash()
 source_version = f"{source_tag}-{source_hash[0:7]}"
@@ -150,30 +159,32 @@ if source_hash == build_hash and "--force" not in sys.argv:
 
 print(f"Updating builds to {source_version}")
 
-# TODO: Workflow IDs can change when new are added, fetch by name instead
-
 # Linux
 print("Downloading Linux build")
 file_linux = f"spotify-qt-{target_version}.AppImage"
-download_artifact_and_extract(7734249, file_linux)
+workflow_id_linux = find_workflow_id("Linux")
+download_artifact_and_extract(workflow_id_linux, file_linux)
 print(f"Linux build saved to: {file_linux}")
 
 # macOS
 print("Downloading macOS build")
 file_macos = f"spotify-qt-{target_version}.dmg"
-download_artifact_and_extract(18407206, file_macos)
+workflow_id_macos = find_workflow_id("macOS")
+download_artifact_and_extract(workflow_id_macos, file_macos)
 print(f"macOS build saved to: {file_macos}")
 
 # Windows x86
 print("Downloading Windows x86 build")
 file_win32 = f"spotify-qt-{target_version}-win32.zip"
-download_artifact(59405711, file_win32)
+workflow_id_win32 = find_workflow_id("Windows (Qt 5, x86)")
+download_artifact(workflow_id_win32, file_win32)
 print(f"Windows x86 build saved to: {file_win32}")
 
 # Windows x64
 print("Downloading Windows x64 build")
 file_win64 = f"spotify-qt-{target_version}-win64.zip"
-download_artifact(59405713, file_win64)
+workflow_id_win64 = find_workflow_id("Windows (Qt 6, x64)")
+download_artifact(workflow_id_win64, file_win64)
 print(f"Windows x64 build saved to: {file_win64}")
 
 # Update release
