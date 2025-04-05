@@ -173,17 +173,10 @@ workflow_id_macos = find_workflow_id("macOS")
 download_artifact_and_extract(workflow_id_macos, file_macos)
 print(f"macOS build saved to: {file_macos}")
 
-# Windows x86
-print("Downloading Windows x86 build")
-file_win32 = f"spotify-qt-{target_version}-win32.zip"
-workflow_id_win32 = find_workflow_id("Windows (Qt 5, x86)")
-download_artifact(workflow_id_win32, file_win32)
-print(f"Windows x86 build saved to: {file_win32}")
-
 # Windows x64
-print("Downloading Windows x64 build")
+print("Downloading Windows build")
 file_win64 = f"spotify-qt-{target_version}-win64.zip"
-workflow_id_win64 = find_workflow_id("Windows (Qt 6, x64)")
+workflow_id_win64 = find_workflow_id("Windows")
 download_artifact(workflow_id_win64, file_win64)
 print(f"Windows x64 build saved to: {file_win64}")
 
