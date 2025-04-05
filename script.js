@@ -14,17 +14,10 @@ const getCurrentSystem = () => {
 			ext: ".dmg",
 		}
 	}
-	if (userAgent.includes("Windows") && userAgent.includes("x64")) {
-		return {
-			id: "win64",
-			name: "Windows",
-			ext: "win64.zip",
-		}
-	}
 	return {
-		id: "win32",
+		id: "win64",
 		name: "Windows",
-		ext: "win32.zip",
+		ext: "win64.zip",
 	}
 }
 
@@ -50,8 +43,6 @@ getDownloadUrl(currentSystem.ext).then(url => {
 })
 if (currentSystem.name === "Windows") {
 	const warning = document.getElementById("warning")
-	const href = currentSystem.id === "win64"
-		? "https://aka.ms/vs/17/release/vc_redist.x64.exe"
-		: "https://aka.ms/vs/17/release/vc_redist.x86.exe"
+	const href = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
 	warning.innerHTML = `<b>Note:</b> Make sure you have the <a href="${href}">C++ Runtime</a> installed.`
 }
