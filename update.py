@@ -97,10 +97,10 @@ def get_changes(sha: str) -> typing.Generator[str, str, None]:
 		yield f"* {message}"
 
 
-def update_release(release_id: int, commit_hash: str, changes: typing.Iterable[str]):
+def update_release(release_id: int, version: str, commit_hash: str, changes: typing.Iterable[str]):
 	today = datetime.date.today()
 	data = json.dumps({
-		"name": today.strftime("%b %d, %Y"),
+		"name": f"{version} ({today.strftime("%b %d, %Y")})",
 		"body": "\n".join([
 			commit_hash,
 			*changes,
@@ -146,10 +146,16 @@ def find_workflow_id(name: str) -> int:
 	raise ValueError(f"Workflow not found: {name}")
 
 
+def get_ahead_of(base_commit: str) -> int:
+	compare_url = f"https://api.github.com/repos/{source_repo_name}/compare/{base_commit}...HEAD~1"
+	compare = requests.get(compare_url, headers=headers).json()
+	return int(compare["ahead_by"])
+
+
 source_tag = get_latest_source_tag()
 source_hash = get_latest_source_hash()
 source_version = f"{source_tag}-{source_hash[0:7]}"
-target_version = f"{source_tag}-{get_target_version()}"
+target_version = f"{source_tag}-dev.{get_ahead_of(source_tag)}"
 
 build_hash = get_latest_build_hash()
 
@@ -157,7 +163,7 @@ if source_hash == build_hash and "--force" not in sys.argv:
 	print(f"Builds are up-to-date ({source_hash})")
 	exit()
 
-print(f"Updating builds to {source_version}")
+print(f"Updating builds to {target_version} ({source_hash[:7]})")
 
 # Linux
 print("Downloading Linux build")
@@ -183,7 +189,7 @@ print(f"Windows x64 build saved to: {file_win64}")
 # Update release
 print("Updating release")
 latest_release_id = get_latest_build_release_id()
-update_release(latest_release_id, source_hash, get_changes(build_hash))
+update_release(latest_release_id, target_version, source_hash, get_changes(build_hash))
 
 # Delete all old assets
 for release_asset_id in get_all_assets():
