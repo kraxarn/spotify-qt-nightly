@@ -147,7 +147,7 @@ def find_workflow_id(name: str) -> int:
 
 
 def get_ahead_of(base_commit: str) -> int:
-	compare_url = f"https://api.github.com/repos/{source_repo_name}/compare/{base_commit}...HEAD~1"
+	compare_url = f"https://api.github.com/repos/{source_repo_name}/compare/{base_commit}...HEAD"
 	compare = requests.get(compare_url, headers=headers).json()
 	return int(compare["ahead_by"])
 
