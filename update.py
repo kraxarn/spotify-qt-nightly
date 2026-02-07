@@ -22,7 +22,7 @@ build_repo_name: typing.Final[str] = "kraxarn/spotify-qt-nightly"
 source_repo_name: typing.Final[str] = "kraxarn/spotify-qt"
 
 
-def get_latest_artifact_url(workflow_id: int) -> str:
+def get_latest_artifact_url(workflow_id: int, artifact_name: str) -> str:
 	runs_url = f"https://api.github.com/repos/{source_repo_name}/actions/workflows/{workflow_id}/runs"
 	runs = requests.get(runs_url, headers=headers).json()["workflow_runs"]
 	latest_run = runs[0]
@@ -32,8 +32,12 @@ def get_latest_artifact_url(workflow_id: int) -> str:
 	else:
 		raise ValueError("Latest run failed")
 
-	artifacts = requests.get(artifacts_url, headers=headers).json()
-	return artifacts["artifacts"][0]["archive_download_url"]
+	artifacts = requests.get(artifacts_url, headers=headers).json()["artifacts"]
+	for artifact in artifacts:
+		if artifact_name in artifact["name"]:
+			return artifact["archive_download_url"]
+
+	raise ValueError("No artifact found")
 
 
 def download_file(source: str, target: str):
@@ -43,10 +47,10 @@ def download_file(source: str, target: str):
 				file.write(chunk)
 
 
-def download_artifact(workflow_id: int, destination: str):
+def download_artifact(workflow_id: int, artifact_name: str, destination: str):
 	if "--no-download" in sys.argv and os.path.isfile(destination):
 		return
-	artifact_url = get_latest_artifact_url(workflow_id)
+	artifact_url = get_latest_artifact_url(workflow_id, artifact_name)
 	download_file(artifact_url, destination)
 
 
@@ -131,9 +135,9 @@ def get_all_assets() -> typing.Generator[int, int, None]:
 		yield asset["id"]
 
 
-def download_artifact_and_extract(workflow_id: int, filename: str):
+def download_artifact_and_extract(workflow_id: int, artifact_name: str, filename: str):
 	download_target = f"{workflow_id}.zip"
-	download_artifact(workflow_id, download_target)
+	download_artifact(workflow_id, artifact_name, download_target)
 	os.rename(extract(download_target), filename)
 
 
@@ -166,25 +170,37 @@ if source_hash == build_hash and "--force" not in sys.argv:
 print(f"Updating builds to {target_version} ({source_hash[:7]})")
 
 # Linux
-print("Downloading Linux build")
-file_linux = f"spotify-qt-{target_version}.AppImage"
 workflow_id_linux = find_workflow_id("Linux")
-download_artifact_and_extract(workflow_id_linux, file_linux)
-print(f"Linux build saved to: {file_linux}")
+
+print("Downloading Linux (x86_64) build")
+file_linux_x86_64 = f"spotify-qt-{target_version}-x86_64.AppImage"
+download_artifact_and_extract(workflow_id_linux, "x86_64", file_linux_x86_64)
+print("Linux (x86_64) build saved to:", file_linux_x86_64)
+
+print("Downloading Linux (aarch64) build")
+file_linux_aarch64 = f"spotify-qt-{target_version}-aarch64.AppImage"
+download_artifact_and_extract(workflow_id_linux, "aarch64", file_linux_aarch64)
+print("Linux (aarch64) build saved to:",file_linux_aarch64)
 
 # macOS
 print("Downloading macOS build")
 file_macos = f"spotify-qt-{target_version}.dmg"
 workflow_id_macos = find_workflow_id("macOS")
-download_artifact_and_extract(workflow_id_macos, file_macos)
+download_artifact_and_extract(workflow_id_macos, "", file_macos)
 print(f"macOS build saved to: {file_macos}")
 
-# Windows x64
-print("Downloading Windows build")
-file_win64 = f"spotify-qt-{target_version}-win64.zip"
+# Windows
 workflow_id_win64 = find_workflow_id("Windows")
-download_artifact(workflow_id_win64, file_win64)
-print(f"Windows x64 build saved to: {file_win64}")
+
+print("Downloading Windows (win64) build")
+file_win64 = f"spotify-qt-{target_version}-win64.zip"
+download_artifact(workflow_id_win64, "win64", file_win64)
+print("Windows (win64) build saved to:", file_win64)
+
+print("Downloading Windows (woa64) build")
+file_woa64 = f"spotify-qt-{target_version}-woa64.zip"
+download_artifact(workflow_id_win64, "woa64", file_woa64)
+print("Windows (woa64) build saved to:", file_woa64)
 
 # Update release
 print("Updating release")
@@ -196,9 +212,11 @@ for release_asset_id in get_all_assets():
 	delete_release_asset(release_asset_id)
 
 # Update builds
-print("Uploading Linux build")
-add_release_asset(latest_release_id, file_linux)
+print("Uploading Linux builds")
+add_release_asset(latest_release_id, file_linux_x86_64)
+add_release_asset(latest_release_id, file_linux_aarch64)
 print("Uploading macOS build")
 add_release_asset(latest_release_id, file_macos)
-print("Uploading Windows build")
+print("Uploading Windows builds")
 add_release_asset(latest_release_id, file_win64)
+add_release_asset(latest_release_id, file_woa64)
