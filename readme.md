@@ -7,5 +7,7 @@ of the main project repository.
 Otherwise, check the [nightly download page](https://kraxarn.github.io/spotify-qt-nightly) for 
 downloads, or the [release page](https://github.com/kraxarn/spotify-qt-nightly/releases/latest).
 
-**Windows users:** Make sure you have the 
-[C++ Runtime x64](https://aka.ms/vs/17/release/vc_redist.x64.exe)!
+**Windows users:** Make sure you have either the
+[C++ Runtime X64](https://aka.ms/vc14/vc_redist.x64.exe) or the
+[C++ Runtime ARM64](https://aka.ms/vc14/vc_redist.arm64.exe), depending on if you choose to
+download the win64, or woa64, build respectively. 
