@@ -135,12 +135,6 @@ def get_all_assets() -> typing.Generator[int, int, None]:
 		yield asset["id"]
 
 
-def download_artifact_and_extract(workflow_id: int, artifact_name: str, filename: str):
-	download_target = f"{workflow_id}.zip"
-	download_artifact(workflow_id, artifact_name, download_target)
-	os.rename(extract(download_target), filename)
-
-
 def find_workflow_id(name: str) -> int:
 	workflows_url = f"https://api.github.com/repos/{source_repo_name}/actions/workflows"
 	workflows = requests.get(workflows_url, headers=headers).json()["workflows"]
@@ -174,19 +168,19 @@ workflow_id_linux = find_workflow_id("Linux")
 
 print("Downloading Linux (x86_64) build")
 file_linux_x86_64 = f"spotify-qt-{target_version}-x86_64.AppImage"
-download_artifact_and_extract(workflow_id_linux, "x86_64", file_linux_x86_64)
+download_artifact(workflow_id_linux, "x86_64", file_linux_x86_64)
 print("Linux (x86_64) build saved to:", file_linux_x86_64)
 
 print("Downloading Linux (aarch64) build")
 file_linux_aarch64 = f"spotify-qt-{target_version}-aarch64.AppImage"
-download_artifact_and_extract(workflow_id_linux, "aarch64", file_linux_aarch64)
+download_artifact(workflow_id_linux, "aarch64", file_linux_aarch64)
 print("Linux (aarch64) build saved to:",file_linux_aarch64)
 
 # macOS
 print("Downloading macOS build")
 file_macos = f"spotify-qt-{target_version}.dmg"
 workflow_id_macos = find_workflow_id("macOS")
-download_artifact_and_extract(workflow_id_macos, "", file_macos)
+download_artifact(workflow_id_macos, "", file_macos)
 print(f"macOS build saved to: {file_macos}")
 
 # Windows
